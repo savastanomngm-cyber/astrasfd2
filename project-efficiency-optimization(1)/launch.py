@@ -26,6 +26,8 @@ def main():
     fingerprint = hashlib.sha256(requirements.read_bytes() + sys.version.encode()).hexdigest()
     marker = environment / ".requirements-sha256"
     if not healthy or not marker.exists() or marker.read_text() != fingerprint:
+        # Upgrade pip first — old bundled pip may not recognize modern wheel tags.
+        subprocess.check_call([str(python), "-m", "pip", "install", "--upgrade", "pip"])
         try:
             subprocess.check_call([str(python), "-m", "pip", "install", "-r", str(requirements)])
             marker.write_text(fingerprint)
