@@ -70,6 +70,7 @@ def test_launcher_repairs_unusable_environment(tmp_path, monkeypatch, failure):
 
     monkeypatch.setattr(launch.subprocess, "run", probe)
     monkeypatch.setattr(launch.subprocess, "check_call", lambda args: calls.append(args))
+    monkeypatch.setattr(launch.sys, "version_info", (3, 12, 0))  # satisfy >=3.11 check
     launch.main()
     assert calls[0][1:3] == ["-m", "venv"]
     assert calls[1][1:4] == ["-m", "pip", "install"]

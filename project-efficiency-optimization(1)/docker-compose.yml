@@ -1,0 +1,14 @@
+services:
+  gamma-lab:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - gamma_data:/app/data
+    restart: unless-stopped
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+
+volumes:
+  gamma_data:

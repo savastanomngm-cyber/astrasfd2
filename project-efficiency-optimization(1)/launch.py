@@ -26,8 +26,26 @@ def main():
     fingerprint = hashlib.sha256(requirements.read_bytes() + sys.version.encode()).hexdigest()
     marker = environment / ".requirements-sha256"
     if not healthy or not marker.exists() or marker.read_text() != fingerprint:
-        subprocess.check_call([str(python), "-m", "pip", "install", "-r", str(requirements)])
-        marker.write_text(fingerprint)
+        try:
+            subprocess.check_call([str(python), "-m", "pip", "install", "-r", str(requirements)])
+            marker.write_text(fingerprint)
+        except subprocess.CalledProcessError:
+            print()
+            print("=" * 60)
+            print("pip install failed — likely a missing system dependency.")
+            print()
+            if sys.platform == "darwin":
+                print("   On macOS, pyarrow may need Apache Arrow C++ to build from source.")
+                print("   Install it with:")
+                print("     brew install apache-arrow")
+                print("   Then run this launcher again.")
+                print()
+            print("   Check the output above for which package failed.")
+            print("   Most packages have prebuilt wheels — if one is building")
+            print("   from source and failing, install its system dependency.")
+            print("=" * 60)
+            print()
+            sys.exit(1)
     args = sys.argv[1:]
     if "--setup" in args:
         return
